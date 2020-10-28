@@ -1,29 +1,21 @@
-from keras.datasets import mnist
-import tensorflow as tf
 
+import tensorflow as tf
+from tensorflow import keras
 import os
 
-mnist_train, mnist_test = mnist.load_data()
 
 
 strategy = tf.distribute.MirroredStrategy()
 
-print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
+fashion_mnist = keras.datasets.fashion_mnist
 
+(train_images, train_labels), (test_images, test_labels) = fashion_mnist.load_data()
 
-BUFFER_SIZE = 10000
+class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
+               'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
+train_images = train_images / 255.0
 
-BATCH_SIZE_PER_REPLICA = 64
-BATCH_SIZE = BATCH_SIZE_PER_REPLICA * strategy.num_replicas_in_sync
-
-def scale(image, label):
-  image = tf.cast(image, tf.float32)
-  image /= 255
-
-  return image, label
-
-train_dataset = mnist_train.map(scale).cache().shuffle(BUFFER_SIZE).batch(BATCH_SIZE)
-eval_dataset = mnist_test.map(scale).batch(BATCH_SIZE)
+test_images = test_images / 255.0
 
 with strategy.scope():
   model = tf.keras.Sequential([
@@ -65,4 +57,4 @@ callbacks = [
     PrintLR()
 ]
 
-model.fit(train_dataset, epochs=12, callbacks=callbacks)
+model.fit(train_images, train_labels, epochs=10, callbacks=callbacks)
