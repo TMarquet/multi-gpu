@@ -100,6 +100,7 @@ model.compile(loss='categorical_crossentropy',
 NUM_GPUS = 2
 strategy = tf.contrib.distribute.MirroredStrategy(num_gpus=NUM_GPUS)
 config = tf.estimator.RunConfig(train_distribute=strategy)
+print config
 estimator = tf.keras.estimator.model_to_estimator(model, config=config)
 
 
