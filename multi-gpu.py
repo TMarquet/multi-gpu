@@ -1,19 +1,15 @@
-
-import tensorflow_datasets as tfds
+from keras.datasets import mnist
 import tensorflow as tf
 
 import os
 
-datasets, info = tfds.load(name='mnist', with_info=True, as_supervised=True)
+mnist_train, mnist_test = mnist.load_data()
 
-mnist_train, mnist_test = datasets['train'], datasets['test']
 
 strategy = tf.distribute.MirroredStrategy()
 
 print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
 
-num_train_examples = info.splits['train'].num_examples
-num_test_examples = info.splits['test'].num_examples
 
 BUFFER_SIZE = 10000
 
