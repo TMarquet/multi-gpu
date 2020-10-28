@@ -31,7 +31,7 @@ with strategy.scope():
       tf.keras.layers.Dense(10)
   ])
 
-  model.compile(loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+  model.compile(loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
                 optimizer=tf.keras.optimizers.Adam(),
                 metrics=['accuracy'])
 
