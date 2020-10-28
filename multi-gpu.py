@@ -65,43 +65,45 @@ test_labels = test_labels.astype(np.float32)
 
 
 ################################ Model definition ###########################################
- 
-inputs = tf.keras.Input(shape=(28,28,1))  	
-x = tf.keras.layers.Conv2D(filters=32, 
-                           kernel_size=(3, 3), 
-                           activation=tf.nn.relu)(inputs)
-x = tf.keras.layers.MaxPooling2D(pool_size=(2, 2), strides=2)(x)
-x = tf.keras.layers.Conv2D(filters=64, 
-                           kernel_size=(3, 3), 
-                           activation=tf.nn.relu)(x)
-x = tf.keras.layers.MaxPooling2D(pool_size=(2, 2), strides=2)(x)
-x = tf.keras.layers.Conv2D(filters=64, 
-                           kernel_size=(3, 3), 
-                           activation=tf.nn.relu)(x)
-x = tf.keras.layers.Flatten()(x)
-x = tf.keras.layers.Dense(64, activation=tf.nn.relu)(x)
-predictions = tf.keras.layers.Dense(LABEL_DIMENSIONS,
-                                    activation=tf.nn.softmax)(x)
-model = tf.keras.Model(inputs=inputs, outputs=predictions)
-
-
-############################## Model Compilation ##########################################
-
-
-
-optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
-model.compile(loss='categorical_crossentropy',
-              optimizer=optimizer,
-              metrics=['accuracy'])
+NUM_GPUS = 3
+strategy = tf.contrib.distribute.MirroredStrategy(num_gpus=NUM_GPUS)
+with strategy.scope():
+    
+    inputs = tf.keras.Input(shape=(28,28,1))  	
+    x = tf.keras.layers.Conv2D(filters=32, 
+                               kernel_size=(3, 3), 
+                               activation=tf.nn.relu)(inputs)
+    x = tf.keras.layers.MaxPooling2D(pool_size=(2, 2), strides=2)(x)
+    x = tf.keras.layers.Conv2D(filters=64, 
+                               kernel_size=(3, 3), 
+                               activation=tf.nn.relu)(x)
+    x = tf.keras.layers.MaxPooling2D(pool_size=(2, 2), strides=2)(x)
+    x = tf.keras.layers.Conv2D(filters=64, 
+                               kernel_size=(3, 3), 
+                               activation=tf.nn.relu)(x)
+    x = tf.keras.layers.Flatten()(x)
+    x = tf.keras.layers.Dense(64, activation=tf.nn.relu)(x)
+    predictions = tf.keras.layers.Dense(LABEL_DIMENSIONS,
+                                        activation=tf.nn.softmax)(x)
+    model = tf.keras.Model(inputs=inputs, outputs=predictions)
+    
+    
+    ############################## Model Compilation ##########################################
+    
+    
+    
+    optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
+    model.compile(loss='categorical_crossentropy',
+                  optimizer=optimizer,
+                  metrics=['accuracy'])
 
 
 #################################### code for Mutli- GPU training ####################################
 ################################## Distribution Strategy ######################################
-NUM_GPUS = 2
-strategy = tf.contrib.distribute.MirroredStrategy(num_gpus=NUM_GPUS)
-config = tf.estimator.RunConfig(train_distribute=strategy)
-print config
-estimator = tf.keras.estimator.model_to_estimator(model, config=config)
+# NUM_GPUS = 3
+# strategy = tf.contrib.distribute.MirroredStrategy(num_gpus=NUM_GPUS)
+# config = tf.estimator.RunConfig(train_distribute=strategy)
+# estimator = tf.keras.estimator.model_to_estimator(model, config=config)
 
 
 ########################################################################
@@ -118,12 +120,8 @@ EPOCHS = 10
 print("\n")
 print(" Starting Training !")
 print("\n")
-estimator.train(lambda:input_fn(train_images,
-                                train_labels,
-                                epochs=EPOCHS,
-                                batch_size=BATCH_SIZE),
-                hooks=[time_hist])
 
+model.fit(train_images, batch_size=BATCH_SIZE, verbose = True, epochs=EPOCHS, validation_data=train_labels)
 print('\n\n\n')
 print("*"*80)
 print('\n')
