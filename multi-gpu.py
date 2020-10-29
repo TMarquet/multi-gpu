@@ -10,7 +10,7 @@ print(tf.__version__)
 import os
 
 
-strategy = tf.distribute.MirroredStrategy()
+strategy = tf.distribute.MirroredStrategy(num_gpus= 2)
 
 fashion_mnist = keras.datasets.fashion_mnist
 
