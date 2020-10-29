@@ -23,12 +23,13 @@ train_images = train_images / 255.0
 test_images = test_images / 255.0
 
 with strategy.scope():
-  model = tf.keras.Sequential([
-      tf.keras.layers.Conv2D(32, 3, activation='relu', input_shape=(28, 28, 1)),
-      tf.keras.layers.MaxPooling2D(),
-      tf.keras.layers.Flatten(),
-      tf.keras.layers.Dense(64, activation='relu'),
-      tf.keras.layers.Dense(10)
+  input_re = keras.layers.Flatten(input_shape=(28, 28))
+  hid = keras.layers.Dense(128, activation='relu')
+  out =  keras.layers.Dense(10)
+  model = keras.Sequential([
+  input_re,
+  hid,
+  out
   ])
 
   model.compile(loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
