@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 print(tf.__version__)
 
 import os
-tf.enable_eager_execution()
+
 DEVICES = ['/device:GPU:0','/device:GPU:1']
 strategy = tf.distribute.MirroredStrategy(devices= DEVICES)
 
