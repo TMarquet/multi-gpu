@@ -9,8 +9,8 @@ print(tf.__version__)
 
 import os
 
-
-strategy = tf.distribute.MirroredStrategy(num_gpus= 2)
+DEVICES = ['/device:GPU:0','/device:GPU:1']
+strategy = tf.distribute.MirroredStrategy(devices= DEVICES)
 
 fashion_mnist = keras.datasets.fashion_mnist
 
